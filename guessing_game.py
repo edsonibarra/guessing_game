@@ -6,12 +6,13 @@ class GuessingGame:
         self.low = None
         self.high = None
         self.tries = 3
-        self.very_high_diff = (20, "very high")
-        self.high_diff = (10, "high")
-        self.low_diff = (6, "low")
-        self.very_low_diff = (3, "very low")
+        self.very_high_diff = (20, "You have no idea")
+        self.high_diff = (10, "You could do it better")
+        self.low_diff = (6, "Close!!")
+        self.very_low_diff = (3, "Wow you are very close! :)")
         self.diff = None
         self.indicator_msg = None
+        self.answer = None
     
     def set_limits(self, low_limit, high_limit):
         self.low = low_limit
@@ -43,7 +44,7 @@ class GuessingGame:
         --------------------------------\n\n
         """)
         answer = random.randint(self.low, self.high)
-        
+        self.answer = answer
         while True:
             u_guess = input("Your guess: ")
             self.tries -= 1
@@ -60,32 +61,29 @@ class GuessingGame:
                 break
             else:
                 if self.tries != 0:
+                    self.diff = abs(u_guess - self.answer)
+                    self.get_diff_msg(self.diff)
                     if u_guess > self.high:
-                        self.diff = abs(u_guess - self.high)
                         print(f"Really, this is even higher that your high limit. Tries left {self.tries}")
                         continue
                     elif u_guess < self.low:
                         print(f"Really, this is even lower that your low limit. Tries left {self.tries}")
                         continue
-                    elif u_guess > answer:
-                        print(f"Incorrect, high! tries left {self.tries}")
-                        continue
-                    elif u_guess < answer:
-                        print(f"Incorrect, low! tries left {self.tries}")
-                        continue
+                    else:
+                        print(f"Incorrect {self.indicator_msg}, tries left {self.tries}")
                 else:
                     print(f"You lost! Answer = {answer}")
                     break
 
-    def get_diff_msg(self):
+    def get_diff_msg(self, diff):
         msg = ""
-        if self.diff >= self.very_high_diff[0]:
+        if diff >= self.very_high_diff[0]:
             msg = self.very_high_diff[1]
-        elif self.diff >= self.high_diff[0]:
+        elif diff >= self.high_diff[0]:
             msg = self.high_diff[1]
-        elif self.diff >= self.low_diff[0]:
+        elif diff >= self.low_diff[0]:
             msg = self.low_diff[1]
-        elif self.diff <= self.very_low_diff[0]:
+        elif diff <= self.very_low_diff[0]:
             msg = self.very_low_diff[1]
         self.indicator_msg = msg
         
