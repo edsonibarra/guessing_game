@@ -1,72 +1,120 @@
 import random
 
 
-def guessing_game():
-    """
-    Guessing game's implementation
-    """
-    print("\nGuessing game instructions:\n\n1. Each user have 3 tries to guess the game.\n")
-    while True:
-        lower_limit_input = input("Select lower limit: ")
-        try:
-            lower_limit = int(lower_limit_input)
-        except ValueError:
-            print("[X] Provide an integer as lower limit.")
-            continue
-        upper_limit_input = input("Select upper limit: ")
-        try:
-            upper_limit = int(upper_limit_input)
-        except ValueError:
-            print("[X] Provide an integer as upper limit.")
-            continue
-        # Validate limits
-        if lower_limit < 0:
-            print("[X] Lower limit can't be less than zero. Please provide a new pair of limits.")
-            continue
-        elif lower_limit > upper_limit:
-            print("[X] Lower limit can't be greater than upper limit. Please provide a new pair of limits.")
-            continue
-        elif lower_limit == upper_limit:
-            print("[X] Limits can't be the same number. Please provide a new pair of limits.")
-            continue
-        print(f"\nYour limits are {lower_limit} - {upper_limit}\n\n")
-        break
+class GuessingGame:
+    def __init__(self) -> None:
+        self.low = None
+        self.high = None
+        self.tries = 3
+        self.very_high_diff = (20, "very high")
+        self.high_diff = (10, "high")
+        self.low_diff = (6, "low")
+        self.very_low_diff = (3, "very low")
+        self.diff = None
+        self.indicator_msg = None
+    
+    def set_limits(self, low_limit, high_limit):
+        self.low = low_limit
+        self.high = high_limit
 
-    # Calculate the answer
-    answer = random.randint(lower_limit, upper_limit)
+    def ask_for_limits(self):
+        while True:
+            l_limit = input("Provide a low limit: ")
+            h_limit = input("Provide a high limit: ")
+            try:
+                l_limit, h_limit = int(l_limit), int(h_limit)
+            except ValueError:
+                print("Only integers allowed as limits.")
+                continue
+            if l_limit == h_limit:
+                print("Limits can't be same number. Provide new ones.")
+                continue
+            elif l_limit > h_limit:
+                print("Low limit can't be greater than high limit. Provide new ones.")
+                continue
+            self.set_limits(l_limit, h_limit)
+            break
 
-    # Get the guesses
-    tries = 0
-    while True:
-        if tries == 3:
-            print(f"\n3 fails. You lost! The answer was {answer}\n")
-            break
-        tries += 1
-        user_guess = input("Your guess: ")
-        try:
-            guess = int(user_guess)
-        except ValueError:
-            print("[X] Provide an integer as guess.")
-            continue
-        if guess == answer:
-            print("You're correct!")
-            break
-        elif guess > upper_limit:
-            print(f"Really? Your upper limit is {upper_limit}. Try again.")
-            continue
-        elif guess < lower_limit:
-            print(f"Really? Your lower limit is {lower_limit}. Try again.")
-            continue
-        elif guess < answer:
-            print("Too low")
-            continue
-        elif guess > answer:
-            print("Too high.")
-            continue
+    def guess(self):
+        print(f"""
+        --------------------------------
+            these are your limits:
+            {self.low} - {self.high}
+        --------------------------------\n\n
+        """)
+        answer = random.randint(self.low, self.high)
         
+        while True:
+            u_guess = input("Your guess: ")
+            self.tries -= 1
+            try:
+                u_guess = int(u_guess)
+            except ValueError:
+                if self.tries == 0:
+                    print(f"You lost! Answer = {answer}")
+                    break
+                print(f"Only integers. Provide new guess. Tries left {self.tries}")
+                continue
+            if u_guess == answer:
+                print("You're correct!")
+                break
+            else:
+                if self.tries != 0:
+                    if u_guess > self.high:
+                        self.diff = abs(u_guess - self.high)
+                        print(f"Really, this is even higher that your high limit. Tries left {self.tries}")
+                        continue
+                    elif u_guess < self.low:
+                        print(f"Really, this is even lower that your low limit. Tries left {self.tries}")
+                        continue
+                    elif u_guess > answer:
+                        print(f"Incorrect, high! tries left {self.tries}")
+                        continue
+                    elif u_guess < answer:
+                        print(f"Incorrect, low! tries left {self.tries}")
+                        continue
+                else:
+                    print(f"You lost! Answer = {answer}")
+                    break
+
+    def get_diff_msg(self):
+        msg = ""
+        if self.diff >= self.very_high_diff[0]:
+            msg = self.very_high_diff[1]
+        elif self.diff >= self.high_diff[0]:
+            msg = self.high_diff[1]
+        elif self.diff >= self.low_diff[0]:
+            msg = self.low_diff[1]
+        elif self.diff <= self.very_low_diff[0]:
+            msg = self.very_low_diff[1]
+        self.indicator_msg = msg
+        
+    def start(self):
+        self.print_welcome_message()
+        self.ask_for_limits()
+        self.guess()
+
+    def print_welcome_message(self):
+        message = """
+        |---------------------------------------------------|
+        |                                                   |
+        |                                                   |
+        |              Guessing Game                        |
+        |                                                   |
+        |                                                   |
+        |---------------------------------------------------|
+
+        The only rule:
+
+        1. You have 3 tries to guess the correct number.
+
+        """
+        print(message)
+
 
 def main():
-    guessing_game()
+    game = GuessingGame()
+    game.start()
 
 
 if __name__ == "__main__":
